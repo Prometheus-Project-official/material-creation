@@ -116,6 +116,12 @@ hr {
   display: block;
 }
 
+.form-data .input-lbl .char-limit {
+  font-size: 0.9em;
+  display: inline-block;
+  margin-left: 5px;
+}
+
 .form-data .input-lbl {
   display: block;
   font-size: 0.9em;
@@ -172,7 +178,7 @@ hr {
   z-index: 1;
   padding: 30px;
   margin: 20px;
-  border-radius: 10px;;
+  border-radius: 10px;
 }
 
 .form-data .del-btn-wrapper {
@@ -194,4 +200,78 @@ hr {
 
 .form-data .download-wrapper .download-btn {
   font-size: 1.5em;
+}
+
+.form-data .slide-warning-wrap {
+  position: fixed;
+  z-index: 30;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.form-data .slide-warning-bg {
+  position: absolute;
+  background-color: rgba(0,0,0,0.8);
+  width: 100%;
+  height: 100%;
+}
+
+.form-data .slide-warning-msg {
+  display: inline-block;
+  background-color: #FFF;
+  z-index: 1;
+  padding: 30px;
+  margin: 20px;
+  border-radius: 10px;
+}
+
+.form-data .slide-warning-txt {
+  text-align: center;
+}
+
+.form-data .slide-warning-btn {
+  display: flex;
+  justify-content: center;
+}
+
+.form-data .export-warning-wrap {
+  position: fixed;
+  z-index: 30;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.form-data .export-warning-bg {
+  position: absolute;
+  background-color: rgba(0,0,0,0.8);
+  width: 100%;
+  height: 100%;
+}
+
+.form-data .export-warning-msg {
+  display: inline-block;
+  background-color: #FFF;
+  z-index: 1;
+  padding: 30px;
+  margin: 20px;
+  border-radius: 10px;
+}
+
+.form-data .export-warning-txt {
+  text-align: center;
+}
+
+.form-data .export-warning-btn {
+  display: flex;
+  justify-content: center;
 }

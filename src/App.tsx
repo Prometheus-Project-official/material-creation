@@ -1,68 +1,137 @@
 import './App.css';
 import React, { useState } from 'react';
-import './App.css';
-import { IPostFormField, ISlideFormField } from './App.interfaces';
+import { IPost, IPostFormData, ISlideFormField } from './App.interfaces';
 
 const App : React.FC = () => {
 
-  const [title, setTitle] = useState<IPostFormField>({code: 'title', minLength: 10, maxLength: 50, placeholder: 'Inserisci titolo del post', value: ''});
-  const [subtitle, setSubtitle] = useState<IPostFormField>({code: 'subtitle', minLength: 10, maxLength: 50, placeholder: 'Inserisci sottotitolo del post', value: ''});
-  const [caption, setCaption] = useState<IPostFormField>({code: 'caption', minLength: 10, maxLength: 1300, placeholder: 'Inserisci caption del post', value: ''});
-  const [sources, setSources] = useState<IPostFormField>({code: 'sources', minLength: undefined, maxLength: undefined, placeholder: 'Inserisci le fonti, una per riga', value: ''});
+  const [formData, setFormData] = useState<IPostFormData>({
+    title: '',
+    caption: '',
+    sources: '',
+    subtitle: '',
+    slides: []
+  });
 
-  const [slides, setSlides] = useState<ISlideFormField[]>([]);
-  const [selectedSlide, setSelectedSlide] = useState<ISlideFormField>({ text: '', imageUrl: '' });
-
+  const [selectedSlide, setSelectedSlide] = useState<ISlideFormField>({ text: '', imageUrl: '', position: 1 });
   const [showDeletePopup, setShowDeletePopup] = useState<boolean>(false);
+  const [slideWarning, setSlideWarning] = useState<string | undefined>(undefined);
+  const [exportWarning, setExportWarning] = useState<string | undefined>(undefined);
 
   const saveSlide = () => {
 
-    if (selectedSlide.id === undefined || (slides.filter(f => f.id === selectedSlide.id).length === 0)) {
-      selectedSlide.id = slides.length+1;
+    if (!selectedSlide.text || selectedSlide.text.length === 0){
+      setSlideWarning("La slide deve contenere del testo");
+      return;
+    }
 
-      let slideArray = slides;
-      slides.push(selectedSlide);
-      setSlides(slideArray);  
+    if (selectedSlide.text.length > 400) {
+      setSlideWarning("Il testo della slide non può superare 400 caratteri");
+      return;
+    }
+
+    if (selectedSlide.position < 1 || selectedSlide.position > 8){
+      setSlideWarning("Il numero della slide deve essere compreso tra 1 e 8");
+      return;
+    }
+
+    if (formData.slides.length >= 8) {
+      setSlideWarning("Un post può avere al massimo 8 slide di contenuto.");
+      return;
+    }
+
+    if (selectedSlide.id === undefined || (formData.slides.filter(f => f.id === selectedSlide.id).length === 0)) {
+
+      if (formData.slides.filter(f => f.position === selectedSlide.position).length > 0) {
+        setSlideWarning("Esiste già una slide nella posizione " + selectedSlide.position);
+        return;
+      }
+
+      selectedSlide.id = formData.slides.length+1;
+
+      let slideArray = formData.slides;
+      slideArray.push(selectedSlide);
+      setFormData({...formData, slides: slideArray});  
     }
     else {
-      let slideArray = slides;
-      let slide = slides.filter(f => f.id === selectedSlide.id)[0];
+      let slideArray = formData.slides;
+      let slide = formData.slides.filter(f => f.id === selectedSlide.id)[0];
       slide.text = selectedSlide.text;
       slide.imageUrl = selectedSlide.imageUrl;
 
-      setSlides(slideArray);
+      setFormData({...formData, slides: slideArray});
     }
 
-    setSelectedSlide({ text: '', imageUrl: ''});
+    reorderSlides();
+    resetSelectedSlide();
+  }
+
+  const reorderSlides = () => {
+    let slideArray = formData.slides;
+    slideArray.sort((a, b) => a.position - b.position);
+    setFormData({...formData, slides: slideArray});  
+  }
+
+  const resetSelectedSlide = () => {
+    setSelectedSlide({ text: '', imageUrl: '', position: 1 });
   }
 
   const deleteSlide = () => {
 
-    if (slides.filter(f => f.id === selectedSlide.id).length === 0){
+    if (formData.slides.filter(f => f.id === selectedSlide.id).length === 0){
       return;
     }
 
-    let slideArray = slides;
-    let slide = slides.filter(f => f.id === selectedSlide.id)[0];
+    let slideArray = formData.slides;
+    let slide = formData.slides.filter(f => f.id === selectedSlide.id)[0];
     let slideIndex = slideArray.indexOf(slide)
     slideArray.splice(slideIndex, 1);
 
-    setSlides(slideArray);
-    setSelectedSlide({ text: '', imageUrl: ''});
+    setFormData({...formData, slides: slideArray});
+    
+    reorderSlides();
+    resetSelectedSlide();
     setShowDeletePopup(false);
+  }
+
+  const validateAllData = () : boolean => {
+    if (formData.title && formData.title.length <= 40 &&
+        formData.subtitle && formData.subtitle.length <= 60 &&
+        formData.caption && formData.caption.length <= 1300 &&
+        formData.sources &&
+        formData.slides && formData.slides.length > 0 && formData.slides.length < 9)
+        {
+          return true;
+        }
+
+    return false;
   }
 
   const exportData = async () => {
 
-    let jsonData = {
-      "text": "This feature has yet to be implemented"
+    if (!validateAllData()){
+      setExportWarning("Attenzione, non tutti i campi sono stati compilati correttamente");
+      return;
+    }
+
+    let post : IPost = {
+      title: formData.title,
+      caption: formData.caption,
+      sources: formData.sources,
+      subtitle: formData.subtitle,
+      slides: []
     };
 
-    let jsonString = JSON.stringify(slides, null, 2);
+    formData.slides.forEach((el, index) => {
+      post.slides.push({
+        text: el.text,
+        imageUrl: el.imageUrl,
+        position: el.position
+      });
+    });
 
-    const blob =  new Blob([jsonString], { type: 'application/json'});
+    const blob =  new Blob([JSON.stringify(post, null, 2)], { type: 'application/json'});
     const href = await URL.createObjectURL(blob);
-    
+
     const link = document.createElement('a');
     link.href = href;
     link.download = "export.json";
@@ -81,41 +150,38 @@ const App : React.FC = () => {
         <div className='form-data'>
 
           <label className='input-box'>
-            <span className='input-lbl'>Titolo cover:</span>
+            <span className='input-lbl'>Titolo cover: <i className='char-limit'>{formData.title.length}/40 car.</i></span>
             <input type='text' 
-                  placeholder={title.placeholder}
-                  value={title.value}
-                  onChange={(e) => setTitle({...title, value: e.target.value})}
-                  minLength={title.minLength} 
-                  maxLength={title.maxLength} />
+                  placeholder="Inserisci titolo del post"
+                  value={formData.title}
+                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  maxLength={40} />
           </label>
 
           <label className='input-box'>
-            <span className='input-lbl'>Sottotitolo cover:</span>
+            <span className='input-lbl'>Sottotitolo cover: <i className='char-limit'>{formData.subtitle.length}/60 car.</i></span>
             <input type='text' 
-                  placeholder={subtitle.placeholder} 
-                  value={subtitle.value}
-                  onChange={(e) => setSubtitle({...subtitle, value: e.target.value})}
-                  minLength={subtitle.minLength} 
-                  maxLength={subtitle.maxLength} />
+                  placeholder={'Inserisci sottotitolo del post'} 
+                  value={formData.subtitle}
+                  onChange={(e) => setFormData({...formData, subtitle: e.target.value})}
+                  maxLength={60} />
           </label>
 
           <label className='input-box'>
-            <span className='input-lbl'>Caption:</span>
+            <span className='input-lbl'>Caption:  <i className='char-limit'>{formData.caption.length}/1300 car.</i></span>
             <textarea rows={9} 
-                      placeholder={caption.placeholder} 
-                      value={caption.value}
-                      onChange={(e) => setCaption({...caption, value: e.target.value})}
-                      minLength={caption.minLength} 
-                      maxLength={caption.maxLength} />
+                      placeholder={'Inserisci caption del post'} 
+                      value={formData.caption}
+                      onChange={(e) => setFormData({...formData, caption: e.target.value})}
+                      maxLength={1300} />
           </label>
 
           <label className='input-box'>
             <span className='input-lbl'>Fonti:</span>
             <textarea rows={6} 
-                      value={sources.value}
-                      onChange={(e) => setSources({...sources, value: e.target.value})}
-                      placeholder={sources.placeholder} />
+                      value={formData.sources}
+                      onChange={(e) => setFormData({...formData, sources: e.target.value})}
+                      placeholder={'Inserisci le fonti, una per riga'} />
           </label>
 
           <div className='slide-container'>
@@ -136,12 +202,12 @@ const App : React.FC = () => {
 
             <div className='slide-list'>
 
-              <span onClick={() => setSelectedSlide({text:'', imageUrl:'' })} className='slide-item'>Slide Vuota</span>
+              <span onClick={resetSelectedSlide} className='slide-item'>Slide Vuota</span>
 
               { 
-                slides && slides.map((el, index) => {
+                formData.slides && formData.slides.map((el, index) => {
                   return(
-                    <span onClick={() => setSelectedSlide(el)} className='slide-item' key={"slide-" + index}>Apri Slide {el.id}</span>
+                    <span onClick={() => setSelectedSlide(el)} className='slide-item' key={"slide-" + index}>Apri Slide {el.position}</span>
                   );
                 }) 
               }
@@ -149,10 +215,9 @@ const App : React.FC = () => {
             </div>
 
             <label className='input-box'>
-              <span className='input-lbl'>Testo Slide:</span>
+              <span className='input-lbl'>Testo Slide:  <i className='char-limit'>{selectedSlide.text.length}/400 car.</i></span>
               <textarea rows={6} 
                         placeholder="Inserisci il testo della slide" 
-                        minLength={10} 
                         maxLength={400}
                         value={selectedSlide.text}
                         onChange={(e) => setSelectedSlide({...selectedSlide, text: e.target.value })} />
@@ -166,19 +231,54 @@ const App : React.FC = () => {
                     onChange={(e) => setSelectedSlide({...selectedSlide, imageUrl: e.target.value })} />
             </label>
 
+            <label className='input-box'>
+              <span className='input-lbl'>Ordine Slide (1-8):</span>
+              <input type='number' 
+                     min={1}
+                     max={8}
+                     placeholder="Inserisci URL immagine suggerita, il campo non è obbligatorio"
+                     value={selectedSlide.position} 
+                     onChange={(e) => setSelectedSlide({...selectedSlide, position: parseInt(e.target.value) })} />
+            </label>
+
+            { slideWarning && 
+              <div className='slide-warning-wrap'>
+                <div onClick={() => setSlideWarning(undefined)} className='slide-warning-bg'></div>
+                <div className='slide-warning-msg'>
+                  <p className='slide-warning-txt'>{slideWarning}</p>
+                  <div className='slide-warning-btn'>
+                    <button onClick={() => setSlideWarning(undefined)} type='button' className='action-btn cancel'>Chiudi</button>  
+                  </div>
+                </div>
+              </div>
+            }
+
             <div className='btn-wrapper'>
-              <button onClick={saveSlide} className='action-btn'>Salva Slide</button>
-              { selectedSlide.id && <button onClick={() => setShowDeletePopup(true)} className='action-btn delete'>Elimina Slide</button> }
+              <button onClick={saveSlide} type='button' className='action-btn'>Salva Slide</button>
+              { selectedSlide.id && <button onClick={() => setShowDeletePopup(true)} type='button' className='action-btn delete'>Elimina Slide</button> }
             </div>
 
           </div>
 
           <hr/>
+
           <div className='download-wrapper'>
-            <button onClick={exportData} className='action-btn download-btn'>Esporta Dati</button>
+            { exportWarning && 
+              <div className='export-warning-wrap'>
+              <div onClick={() => setExportWarning(undefined)} className='export-warning-bg'></div>
+              <div className='export-warning-msg'>
+                <p className='export-warning-txt'>{exportWarning}</p>
+                <div className='export-warning-btn'>
+                  <button onClick={() => setExportWarning(undefined)} type='button' className='action-btn cancel'>Chiudi</button>  
+                </div>
+              </div>
+            </div>
+            }
+            <button type='button' onClick={exportData} className='action-btn download-btn'>Esporta Dati</button>
           </div>
 
         </div>
+
       </div>
     </div>
   );
