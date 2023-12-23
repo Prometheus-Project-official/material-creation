@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Gabarito:wght@400;600&display=swap');
 
+/* COMMON */
+
 html, body {
   margin: 0;
   padding: 0;
@@ -8,7 +10,8 @@ html, body {
   background: #00C67E;
   color: #2B3032;
   font-family: 'Gabarito', sans-serif;
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 400;
 }
 
 h1, h2, h3, h4 {
@@ -19,6 +22,51 @@ a, a:visited {
   color: #00C67E;
   text-decoration: none;
 }
+
+.action-btn {
+  display: inline-block;
+  padding: 5px 25px;
+  border-radius: 50px;
+  border: none;
+  background-color: #00C67E;
+  color: #ffffff;
+  font-size: 1.1em;
+  font-weight: bold;
+  font-family: 'Gabarito', sans-serif;
+  cursor: pointer;
+  transition: background-color .3s ease;
+}
+
+.action-btn.delete {
+  background-color: #d80c0c;
+}
+
+.action-btn.cancel {
+  background-color: #c5c5c5;
+  color: #2B3032;
+}
+
+.action-btn:hover {
+  background-color: #007e50;
+}
+
+.action-btn.delete:hover {
+  background-color: #8a0000;
+}
+
+.action-btn.cancel:hover {
+  background-color: #949494;
+}
+
+hr {
+  background: rgba(0,0,0,0.1);
+  height: 1px;
+  width: 80%;
+  border: none;
+  margin: 40px auto 40px auto;
+}
+
+/* PAGE SPECIFICS  */
 
 .form-wrap {
   display: flex;
@@ -38,4 +86,112 @@ a, a:visited {
 
 .form-title {
   text-align: center;
+}
+
+.form-desc {
+  font-style: italic;
+  text-align: center;
+  margin: 5px 0;
+}
+
+.form-data {
+  margin-top: 30px;
+}
+
+.form-data input,
+.form-data textarea {
+  display: block;
+  width: calc(100% - 12px);
+  padding: 6px 5px;
+  border: solid 1px rgba(43, 48, 50, 0.3);
+  border-radius: 5px;
+  font-size: 1em;
+  max-width: none;
+  font-family: 'Gabarito', sans-serif;
+  resize: vertical;
+}
+
+.form-data .input-box {
+  margin-top: 20px;
+  display: block;
+}
+
+.form-data .input-lbl {
+  display: block;
+  font-size: 0.9em;
+  font-weight: bold;
+  margin: 0 0 5px 5px;
+}
+
+.form-data .slide-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.form-data .slide-list .slide-item {
+  display: inline-block;
+  padding: 5px 20px;
+  background: rgba(0,0,0,0.1);
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.form-data .btn-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.form-data .btn-wrapper .action-btn {
+  margin-right: 10px;
+}
+
+.form-data .del-popup-cont {
+  position: fixed;
+  z-index: 30;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.form-data .del-popup-bg {
+  position: absolute;
+  background-color: rgba(0,0,0,0.8);
+  width: 100%;
+  height: 100%;
+}
+
+.form-data .del-popup {
+  display: inline-block;
+  background-color: #FFF;
+  z-index: 1;
+  padding: 30px;
+  margin: 20px;
+  border-radius: 10px;;
+}
+
+.form-data .del-btn-wrapper {
+  display: flex;
+  margin-top: 10px;
+  justify-content: center;
+}
+
+.form-data .del-btn-wrapper .action-btn {
+  margin: 5px;
+}
+
+.form-data .download-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.form-data .download-wrapper .download-btn {
+  font-size: 1.5em;
 }
