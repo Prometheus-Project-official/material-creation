@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/material-creation/static/css/main.e4dc1d6d.css",
-    "main.js": "/material-creation/static/js/main.d52868d1.js",
+    "main.css": "/material-creation/static/css/main.348220aa.css",
+    "main.js": "/material-creation/static/js/main.dfc841da.js",
     "static/js/787.02b80b2a.chunk.js": "/material-creation/static/js/787.02b80b2a.chunk.js",
     "index.html": "/material-creation/index.html",
-    "main.e4dc1d6d.css.map": "/material-creation/static/css/main.e4dc1d6d.css.map",
-    "main.d52868d1.js.map": "/material-creation/static/js/main.d52868d1.js.map",
+    "main.348220aa.css.map": "/material-creation/static/css/main.348220aa.css.map",
+    "main.dfc841da.js.map": "/material-creation/static/js/main.dfc841da.js.map",
     "787.02b80b2a.chunk.js.map": "/material-creation/static/js/787.02b80b2a.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.e4dc1d6d.css",
-    "static/js/main.d52868d1.js"
+    "static/css/main.348220aa.css",
+    "static/js/main.dfc841da.js"
   ]
 }
